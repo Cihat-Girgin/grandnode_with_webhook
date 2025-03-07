@@ -1,0 +1,34 @@
+﻿@model BrandListModel
+@inject IPageHeadBuilder pagebuilder
+@{
+    Layout = "_TwoColumns";
+
+    //title
+    pagebuilder.AddTitleParts(Loc["Title.Brands"]);
+}
+<div class="page collection-list-page">
+    <h1 class="generalTitle h2">@Loc["Brands.List"]</h1>
+    <div class="collectionGrid">
+        <div class="row flex-grid">
+            @foreach (var item in Model.BrandsModel)
+            {
+                <div class="col-md-4 col-6 mb-2">
+                    <a class="mb-2" href="@Url.RouteUrl("Brand", new { item.SeName })" title="@item.PictureModel.Title">
+                        <div class="card">
+                            <article>
+                                <img class="img-fluid" src="@item.PictureModel.ImageUrl" alt="@item.PictureModel.AlternateText">
+                                <div class="card-body">
+                                    <h5>@item.Name</h5>
+                                </div>
+                            </article>
+                        </div>
+                    </a>
+                </div>
+            }
+        </div>
+        @if (Model.BrandsModel.Any())
+        {
+            <page-navigation asp-query-param="pagenumber" asp-pagination="Model.PagingModel"/>
+        }
+    </div>
+</div>

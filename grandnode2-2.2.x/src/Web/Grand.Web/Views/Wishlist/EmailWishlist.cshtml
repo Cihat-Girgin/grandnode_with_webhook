@@ -1,0 +1,78 @@
+﻿@model WishlistEmailAFriendModel
+@inject IPageHeadBuilder pagebuilder
+@{
+    Layout = "_SingleColumn";
+
+    //title
+    pagebuilder.AddTitleParts(Loc["Title.WishlistEmailAFriend"]);
+}
+<div class="page email-a-friend-page">
+    <h2 class="h2 generalTitle text-xs-center">@Loc["Wishlist.EmailAFriend.Title"]</h2>
+    @if (Model.SuccessfullySent)
+    {
+        <div class="result alert alert-info">
+            @Model.Result
+        </div>
+    }
+    else
+    {
+        <validation-observer v-slot="{ handleSubmit }">
+            <form asp-route="EmailWishlist" method="post" ref="form" v-on:submit.prevent="handleSubmit(formSubmit)">
+                <div asp-validation-summary="All" class="message-error"></div>
+                <div class="form-fields">
+                    <div class="inputs pb-1">
+                        <validation-provider tag="div" rules="required|email" name="FriendEmail" v-slot="{ errors, classes }">
+                            <label asp-for="FriendEmail" class="col-form-label">@Loc["Wishlist.EmailAFriend.FriendEmail"]:</label>
+                            <span class="required">*</span>
+                            <input asp-for="FriendEmail" v-model="emailwishlist.FriendEmail" placeholder="@Loc["Wishlist.EmailAFriend.FriendEmail.Hint"]" v-bind:class="[classes , 'form-control']"
+                                   data-val-email=@Loc["Common.WrongEmail"] data-val-required=@Loc["Wishlist.EmailAFriend.FriendEmail.Required"]/>
+                            <span class="field-validation-error">{{ errors[0] }}</span>
+                            <span asp-validation-for="FriendEmail"></span>
+                        </validation-provider>
+                    </div>
+                    <div class="inputs pb-1">
+                        <validation-provider tag="div" rules="required|email" name="YourEmailAddress" v-slot="{ errors, classes }">
+                            <label asp-for="YourEmailAddress" class="col-form-label">@Loc["Wishlist.EmailAFriend.YourEmailAddress"]:</label>
+                            <span class="required">*</span>
+                            <input asp-for="YourEmailAddress" v-model="emailwishlist.YourEmailAddress" placeholder="@Loc["Wishlist.EmailAFriend.YourEmailAddress.Hint"]" v-bind:class="[classes , 'form-control']"
+                                   data-val-email=@Loc["Common.WrongEmail"] data-val-required=@Loc["Wishlist.EmailAFriend.YourEmailAddress.Required"]/>
+                            <span class="field-validation-error">{{ errors[0] }}</span>
+                            <span asp-validation-for="YourEmailAddress"></span>
+                        </validation-provider>
+                    </div>
+                    <div class="inputs pb-1">
+                        <validation-provider tag="div" rules="required" name="PersonalMessage" v-slot="{ errors, classes }">
+                            <label asp-for="PersonalMessage" class="col-form-label">@Loc["Wishlist.EmailAFriend.PersonalMessage"]:</label>
+                            <span class="required">*</span>
+                            <textarea asp-for="PersonalMessage" v-model="emailwishlist.PersonalMessage" placeholder="@Loc["Wishlist.EmailAFriend.PersonalMessage.Hint"]" v-bind:class="[classes , 'form-control']" rows="4" data-val-required=@Loc["Wishlist.EmailAFriend.PersonalMessage.Required"] ></textarea>
+                            <span class="field-validation-error">{{ errors[0] }}</span>
+                            <span asp-validation-for="PersonalMessage"></span>
+                        </validation-provider>
+                    </div>
+                    @if (Model.DisplayCaptcha)
+                    {
+                        <div class="captcha-box pb-1">
+                            <captcha/>
+                        </div>
+                    }
+                </div>
+                <div class="btn-group mt-3">
+                    <input type="submit" class="btn btn-info send-email-a-friend-button" value="@Loc["Wishlist.EmailAFriend.Button"]">
+                </div>
+            </form>
+        </validation-observer>
+        <script asp-location="Footer" asp-order="300">
+            var emailwishlist = new Vue({
+                    data: () => ({
+                        @{
+                            <text>
+                                FriendEmail: '@Html.Raw(Model.FriendEmail)',
+                                YourEmailAddress: '@Html.Raw(Model.YourEmailAddress)',
+                                PersonalMessage: '@Html.Raw(Model.PersonalMessage)',
+                            </text>
+                        }
+                    })
+                });
+        </script>
+    }
+</div>

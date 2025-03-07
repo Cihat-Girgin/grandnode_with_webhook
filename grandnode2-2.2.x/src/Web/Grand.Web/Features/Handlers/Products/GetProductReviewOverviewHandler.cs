@@ -1,0 +1,22 @@
+﻿using Grand.Web.Features.Models.Products;
+using Grand.Web.Models.Catalog;
+using MediatR;
+
+namespace Grand.Web.Features.Handlers.Products;
+
+public class GetProductReviewOverviewHandler : IRequestHandler<GetProductReviewOverview, ProductReviewOverviewModel>
+{
+    public async Task<ProductReviewOverviewModel> Handle(GetProductReviewOverview request,
+        CancellationToken cancellationToken)
+    {
+        var productReview = new ProductReviewOverviewModel {
+            RatingSum = request.Product.ApprovedRatingSum,
+            TotalReviews = request.Product.ApprovedTotalReviews,
+            AvgRating = request.Product.AvgRating,
+            ProductId = request.Product.Id,
+            AllowCustomerReviews = request.Product.AllowCustomerReviews
+        };
+
+        return await Task.FromResult(productReview);
+    }
+}

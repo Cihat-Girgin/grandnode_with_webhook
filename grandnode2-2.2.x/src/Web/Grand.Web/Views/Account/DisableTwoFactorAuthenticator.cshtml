@@ -1,0 +1,56 @@
+﻿@model CustomerInfoModel.TwoFactorAuthorizationModel
+@inject IPageHeadBuilder pagebuilder
+@{
+    Layout = "_TwoColumns";
+    //title
+    pagebuilder.AddTitleParts(Loc["Title.TwoFactorAuth"]);
+}
+
+@section left
+{
+    @await Component.InvokeAsync("CustomerNavigation", new { selectedTabId = AccountNavigationEnum.Info })
+}
+
+<div class="page login-page">
+    <h2 class="generalTitle">@Loc["Account.TwoFactorAuth.Disable"]</h2>
+    <input type="hidden" asp-for="TwoFactorAuthenticationType"/>
+    <ul class="pl-0">
+        <li>
+            <b>@Loc[$"Account.TwoFactorAuth.Disable.{Model.TwoFactorAuthenticationType}.FirstLine"]</b>
+        </li>
+        <li>@Loc[$"Account.TwoFactorAuth.Disable.{Model.TwoFactorAuthenticationType}.SecondLine"]</li>
+    </ul>
+    <div asp-validation-summary="All" class="message-error"></div>
+    @await Component.InvokeAsync("Widget", new { widgetZone = "Disable.TwoFactorAuthentication.EmailVerification" })
+    <div class="mb-2">
+        <div class="row flex-md-row mt-3 mb-3">
+            <div class="col-lg-6 col-12 text-center">
+                <div class="card">
+                    <form asp-route="DisableEnableTwoFactorAuthorization" method="post">
+                        <div class="card-body">
+                            <div class="row justify-content-center">
+                                <div asp-validation-summary="All" class="message-error"></div>
+                                <div class="col-12 form-group mb-0">
+                                    <div class="form-group row">
+                                        <div class="col-lg-3 col-12">
+                                            <label asp-for="Code" class="col-form-label">@Loc["Account.TwoFactorAuth.DigitCode"]</label>
+                                        </div>
+                                        <div class="col-lg-9 col-12">
+                                            <input asp-for="Code" name="Code" type="text" class="form-control"/>
+                                            <span asp-validation-for="Code"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <div class="buttons">
+                                <input class="btn btn-info login-button" type="submit" value="@Loc["Account.TwoFactorAuth.SendCode"]"/>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

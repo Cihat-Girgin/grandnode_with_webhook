@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\..\Build\Grand.Common.props" />
+  <ItemGroup>
+    <PackageReference Include="MongoDB.Bson" Version="2.25.0" />
+    <PackageReference Include="DotLiquid" Version="2.2.692" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Grand.SharedKernel\Grand.SharedKernel.csproj" />
+  </ItemGroup>
+
+</Project>

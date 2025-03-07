@@ -1,0 +1,15 @@
+﻿<div v-if="vmorder.PaymentInfo" class="checkout-data">
+    <div class="col-12 px-0">
+        <div v-if="vmorder.paymentBusy" class="d-flex justify-content-center align-items-center" style="height: 150px;">
+            <div class="spinner-border text-info" role="status">
+            </div>
+        </div>
+        @await Component.InvokeAsync("Widget", new { widgetZone = "checkout_payment_info_top" })
+        <div class="section payment-info">
+            <div class="info">
+            </div>
+            <div asp-validation-summary="All" class="message-error"></div>
+        </div>
+        @await Component.InvokeAsync("Widget", new { widgetZone = "checkout_payment_info_bottom" })
+    </div>
+</div>

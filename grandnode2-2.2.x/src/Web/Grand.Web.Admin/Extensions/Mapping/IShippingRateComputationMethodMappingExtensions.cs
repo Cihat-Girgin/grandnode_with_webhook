@@ -1,0 +1,13 @@
+﻿using Grand.Business.Core.Interfaces.Checkout.Shipping;
+using Grand.Infrastructure.Mapper;
+using Grand.Web.Admin.Models.Shipping;
+
+namespace Grand.Web.Admin.Extensions.Mapping;
+
+public static class IShippingRateComputationMethodMappingExtensions
+{
+    public static ShippingRateComputationMethodModel ToModel(this IShippingRateCalculationProvider entity)
+    {
+        return entity.MapTo<IShippingRateCalculationProvider, ShippingRateComputationMethodModel>();
+    }
+}

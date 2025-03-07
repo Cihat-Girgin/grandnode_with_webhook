@@ -1,0 +1,45 @@
+﻿@model NewsItemListModel
+@inject IPageHeadBuilder pagebuilder
+@{
+    Layout = "_TwoColumns";
+
+    //title
+    pagebuilder.AddTitleParts(Loc["Title.NewsArchive"]);
+}
+<div class="page news-list-page">
+    <h1 class="generalTitle h2"> @Loc["News"]</h1>
+    @await Component.InvokeAsync("Widget", new { widgetZone = "newslist_page_before_items" })
+    <div class="news-items row">
+        @foreach (var item in Model.NewsItems)
+        {
+            <div class="col-xl-6 col-12">
+                <div class="card mb-3">
+                    @if (!string.IsNullOrEmpty(item.PictureModel.ImageUrl))
+                    {
+                        <b-img-lazy class="img-fluid card-img-top" src="@item.PictureModel.ImageUrl" alt="@item.PictureModel.AlternateText"></b-img-lazy>
+                    }
+                    <div class="card-header">
+                        <h3 class="h5 mb-0">
+                            <a href="@Url.RouteUrl("NewsItem", new { item.SeName })">
+                                @item.Title
+                            </a>
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        @Html.Raw(item.Short)
+                    </div>
+                    <div class="buttons mb-3 px-3">
+                        <a class="btn btn-sm btn-outline-info read-more" href="@Url.RouteUrl("NewsItem", new { item.SeName })">@Loc["News.MoreInfo"]</a>
+                    </div>
+                    <div class="card-footer">
+                        <small class="text-muted">@item.CreatedOn.ToString("D")</small>
+                    </div>
+                </div>
+            </div>
+        }
+        <page-navigation asp-query-param="pagenumber" asp-pagination="Model.PagingFilteringContext"/>
+
+        @await Component.InvokeAsync("Widget", new { widgetZone = "newslist_page_after_items" })
+    </div>
+
+</div>

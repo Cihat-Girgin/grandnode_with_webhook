@@ -1,0 +1,63 @@
+﻿@model PermissionActionModel
+@{
+    Layout = "";
+    //page title
+    ViewBag.Title = Loc["Admin.Configuration.Permissions"];
+}
+<form id="PermissionsAction" asp-area="@Constants.AreaAdmin" asp-controller="Permission" asp-action="PermissionsAction" method="post">
+    <input asp-for="SystemName" type="hidden"/>
+    <input asp-for="CustomerGroupId" type="hidden"/>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="x_panel light form-fit">
+                <div class="x_title">
+                    <div class="caption">
+                        <i class="fa fa-user-secret"></i>
+                        @Loc["Admin.Configuration.Permissions.Actions"] (@Model.PermissionName - @Model.CustomerGroupName)
+                    </div>
+
+                </div>
+                <div class="x_content form">
+                    <div class="actions">
+                        <button class="btn btn-success" type="submit" name="save">
+                            <i class="fa fa-check"></i> @Loc["Admin.Common.Save"]
+                        </button>
+                    </div>
+                    <div class="form-horizontal">
+                        <div class="form-body">
+                            <div class="form-group">
+                                <div class="col-md-12 col-sm-12">
+                                    <div class="mt-checkbox-list">
+                                        @foreach (var action in Model.AvailableActions)
+                                        {
+                                            <label class="mt-checkbox mt-checkbox-outline control control-checkbox control control-checkbox">
+                                                <input type="checkbox" name="SelectedActions" value="@action" checked="@(!Model.DeniedActions.Contains(action))"/>@action
+                                                <div class="control__indicator"></div>
+                                            </label>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        var mfp = $.magnificPopup.instance;
+        $("#PermissionsAction").submit(function (e) {
+            e.preventDefault();
+            var form = $(this);
+            var url = form.attr('action');
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: form.serialize(),
+                success: function (data) {
+                    mfp.close();
+                }
+            });
+        });
+    </script>
+</form>

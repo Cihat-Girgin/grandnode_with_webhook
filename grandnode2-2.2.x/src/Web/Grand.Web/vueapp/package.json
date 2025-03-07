@@ -1,0 +1,51 @@
+{
+  "name": "grand.web",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "serve": "vue-cli-service serve",
+    "build": "vue-cli-service build",
+    "lint": "vue-cli-service lint"
+  },
+  "dependencies": {
+    "animate.css": "^4.1.1",
+    "axios": "^1.6.5",
+    "bootstrap": "^4.6.2",
+    "bootstrap-vue": "^2.22.0",
+    "pikaday": "^1.8.2",
+    "sass-loader": "^12.6.0",
+    "vee-validate": "^3.1.0",
+    "vue": "^2.7.8",
+    "vue-awesome-countdown": "^1.1.4",
+    "vue-gallery-slideshow": "^1.5.2"
+  },
+  "devDependencies": {
+    "@vue/cli-plugin-babel": "^5.0.8",
+    "@vue/cli-plugin-eslint": "^5.0.8",
+    "@vue/cli-service": "^5.0.8",
+    "babel-eslint": "^10.1.0",
+    "eslint": "^8.22.0",
+    "eslint-plugin-vue": "^9.3.0",
+    "vue-template-compiler": "^2.7.8",
+    "webpack": "^5.74.0"
+  },
+  "eslintConfig": {
+    "root": true,
+    "env": {
+      "node": true
+    },
+    "extends": [
+      "plugin:vue/essential",
+      "eslint:recommended"
+    ],
+    "parserOptions": {
+      "parser": "babel-eslint"
+    },
+    "rules": {}
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not dead"
+  ]
+}

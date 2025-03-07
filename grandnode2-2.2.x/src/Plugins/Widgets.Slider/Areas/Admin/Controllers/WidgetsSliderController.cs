@@ -1,0 +1,167 @@
+﻿using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Interfaces.Common.Configuration;
+using Grand.Business.Core.Interfaces.Common.Directory;
+using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Business.Core.Interfaces.Storage;
+using Grand.Business.Core.Utilities.Common.Security;
+using Grand.Web.Common.Controllers;
+using Grand.Web.Common.DataSource;
+using Grand.Web.Common.Filters;
+using Grand.Web.Common.Security.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Widgets.Slider.Models;
+using Widgets.Slider.Services;
+
+namespace Widgets.Slider.Areas.Admin.Controllers;
+
+[PermissionAuthorize(PermissionSystemName.Widgets)]
+public class WidgetsSliderController : BaseAdminPluginController
+{
+    private readonly IDateTimeService _dateTimeService;
+    private readonly ILanguageService _languageService;
+    private readonly IPictureService _pictureService;
+    private readonly ISettingService _settingService;
+    private readonly ISliderService _sliderService;
+    private readonly SliderWidgetSettings _sliderWidgetSettings;
+    private readonly ITranslationService _translationService;
+
+    public WidgetsSliderController(
+        IPictureService pictureService,
+        ITranslationService translationService,
+        ISliderService sliderService,
+        ILanguageService languageService,
+        ISettingService settingService,
+        SliderWidgetSettings sliderWidgetSettings,
+        IDateTimeService dateTimeService)
+    {
+        _pictureService = pictureService;
+        _translationService = translationService;
+        _sliderService = sliderService;
+        _languageService = languageService;
+        _settingService = settingService;
+        _sliderWidgetSettings = sliderWidgetSettings;
+        _dateTimeService = dateTimeService;
+    }
+
+    public IActionResult Configure()
+    {
+        var model = new ConfigurationModel {
+            DisplayOrder = _sliderWidgetSettings.DisplayOrder,
+            CustomerGroups = _sliderWidgetSettings.LimitedToGroups?.ToArray(),
+            Stores = _sliderWidgetSettings.LimitedToStores?.ToArray()
+        };
+        return View(model);
+    }
+
+    [HttpPost]
+    public IActionResult Configure(ConfigurationModel model)
+    {
+        _sliderWidgetSettings.DisplayOrder = model.DisplayOrder;
+        _sliderWidgetSettings.LimitedToGroups =
+            model.CustomerGroups == null ? new List<string>() : model.CustomerGroups.ToList();
+        _sliderWidgetSettings.LimitedToStores = model.Stores == null ? new List<string>() : model.Stores.ToList();
+        _settingService.SaveSetting(_sliderWidgetSettings);
+        return Json("Ok");
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> List(DataSourceRequest command)
+    {
+        var sliders = await _sliderService.GetPictureSliders();
+
+        var items = new List<SlideListModel>();
+        foreach (var x in sliders)
+        {
+            var model = x.ToListModel();
+            var picture = await _pictureService.GetPictureById(x.PictureId);
+            if (picture != null) model.PictureUrl = await _pictureService.GetPictureUrl(picture, 150);
+            items.Add(model);
+        }
+
+        var gridModel = new DataSourceResult {
+            Data = items,
+            Total = sliders.Count
+        };
+        return Json(gridModel);
+    }
+
+    public async Task<IActionResult> Create()
+    {
+        var model = new SlideModel();
+        //locales
+        await AddLocales(_languageService, model.Locales);
+
+        return View(model);
+    }
+
+    [HttpPost]
+    [ArgumentNameFilter(KeyName = "save-continue", Argument = "continueEditing")]
+    public async Task<IActionResult> Create(SlideModel model, bool continueEditing)
+    {
+        if (ModelState.IsValid)
+        {
+            var pictureSlider = model.ToEntity(_dateTimeService);
+            pictureSlider.Locales = model.Locales.ToLocalizedProperty();
+
+            await _sliderService.InsertPictureSlider(pictureSlider);
+
+            Success(_translationService.GetResource("Widgets.Slider.Added"));
+            return continueEditing
+                ? RedirectToAction("Edit", new { id = pictureSlider.Id })
+                : RedirectToAction("Configure");
+        }
+
+        return View(model);
+    }
+
+    public async Task<IActionResult> Edit(string id)
+    {
+        var slide = await _sliderService.GetById(id);
+        if (slide == null)
+            return RedirectToAction("Configure");
+
+        var model = slide.ToModel(_dateTimeService);
+
+        //locales
+        await AddLocales(_languageService, model.Locales, (locale, languageId) =>
+        {
+            locale.Name = slide.GetTranslation(x => x.Name, languageId, false);
+            locale.Description = slide.GetTranslation(x => x.Description, languageId, false);
+        });
+
+        return View(model);
+    }
+
+    [HttpPost]
+    [ArgumentNameFilter(KeyName = "save-continue", Argument = "continueEditing")]
+    public async Task<IActionResult> Edit(SlideModel model, bool continueEditing)
+    {
+        var pictureSlider = await _sliderService.GetById(model.Id);
+        if (pictureSlider == null)
+            return RedirectToAction("Configure");
+
+        if (ModelState.IsValid)
+        {
+            pictureSlider = model.ToEntity(pictureSlider, _dateTimeService);
+            pictureSlider.Locales = model.Locales.ToLocalizedProperty();
+            await _sliderService.UpdatePictureSlider(pictureSlider);
+            Success(_translationService.GetResource("Widgets.Slider.Edited"));
+            return continueEditing
+                ? RedirectToAction("Edit", new { id = pictureSlider.Id })
+                : RedirectToAction("Configure");
+        }
+
+        return View(model);
+    }
+
+    public async Task<IActionResult> Delete(string id)
+    {
+        var pictureSlider = await _sliderService.GetById(id);
+        if (pictureSlider == null)
+            return Json(new DataSourceResult { Errors = "This pictureSlider not exists" });
+
+        await _sliderService.DeleteSlider(pictureSlider);
+
+        return new JsonResult("");
+    }
+}

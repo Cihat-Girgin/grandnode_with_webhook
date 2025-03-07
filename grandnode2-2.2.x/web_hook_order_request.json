@@ -1,0 +1,49 @@
+{
+  "info": {
+    "_postman_id": "5a19c39d-78a1-4c80-85b0-87c8c29f7ad1",
+    "name": "Webhook API Request",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "POST Webhook Request",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "X-Api-Key",
+            "value": "d4f3a9b8-12c4-45a2-90df-08c5f87e3b21",
+            "type": "text"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          },
+          {
+            "key": "Cookie",
+            "value": ".Grand.Customer=be66aea8-0e62-41b4-8b10-5383cf0a5b36",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "https://localhost:44350/api/webhook",
+          "protocol": "https",
+          "host": [
+            "localhost"
+          ],
+          "port": "44350",
+          "path": [
+            "api",
+            "webhook"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\"StoreName\": \"Test Store\",\"IdempotencyKey\":\"550e8400-e29b-41d4-a716-446655440001\",\"PaymentMethod\":\"Payments.CashOnDelivery\",\"PaymentStatusId\": 10, \"Customer\": {\"Email\": \"test@example.com\",\"FirstName\": \"Test FirstName\",\"LastName\": \"Test LastName\"},\"Address\": {\"Country\": \"Test Country\",\"City\": \"Test City\",\"Address\": \"Test Address Description\"},\"OrderItems\": [{\"Sku\": \"test-sku-1\",\"UnitPrice\": 1000,\"Quantity\": 2},{\"Sku\": \"test-sku-2\",\"UnitPrice\": 1000,\"Quantity\": 4}]}"
+        }
+      },
+      "response": []
+    }
+  ]
+}

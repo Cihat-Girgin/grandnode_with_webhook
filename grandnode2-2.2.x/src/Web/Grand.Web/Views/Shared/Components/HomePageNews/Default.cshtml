@@ -1,0 +1,38 @@
+﻿@model HomePageNewsItemsModel
+@inject DisplayOrderHomePage order
+<div class="news-list-homepage my-3 order-@order.HomePageNews">
+    <h2 class="generalTitle text-center mb-3">
+        @Loc["News"]
+    </h2>
+    <div class="col-12 px-0">
+        <div class="form-row">
+            @foreach (var item in Model.NewsItems)
+            {
+                <div class="col-xl-@order.Pn_Xl col-lg-@order.Pn_Lg col-md-@order.Pn_Md col-sm-@order.Pn_Sm col-@order.Pn_Col mb-3">
+                    <div class="card">
+                        @if (!string.IsNullOrEmpty(item.PictureModel.ImageUrl))
+                        {
+                            <b-img-lazy class="img-fluid card-img-top" src="@item.PictureModel.ImageUrl" alt="@item.PictureModel.AlternateText"></b-img-lazy>
+                        }
+                        <div class="card-header">
+                            <h3 class="h5 mb-0">
+                                <b-link href="@Url.RouteUrl("NewsItem", new { item.SeName })">
+                                    @item.Title
+                                </b-link>
+                            </h3>
+                        </div>
+                        <div class="card-body">
+                            @Html.Raw(item.Short)
+                        </div>
+                        <div class="card-footer">
+                            <small class="date-text">@item.CreatedOn.ToString("D")</small>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+    <div class="view-all text-center">
+        <a class="btn btn-outline-secondary" href="@Url.RouteUrl("NewsArchive")">@Loc["News.ViewAll"]</a>
+    </div>
+</div>

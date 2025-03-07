@@ -1,0 +1,22 @@
+﻿@model PopularProductTagsModel
+@inject IPageHeadBuilder pagebuilder
+@{
+    Layout = "_TwoColumns";
+
+    //title
+    pagebuilder.AddTitleParts(Loc["Title.AllProductTags"]);
+}
+<div class="page product-tags-all-page">
+    <h1 class="generalTitle h2">@Loc["Products.Tags.All"]</h1>
+    @if (Model.Tags.Any())
+    {
+        <div class="btn-group-sm">
+            @foreach (var item in Model.Tags)
+            {
+                <a class="btn btn-light d-flex align-items-center mr-2 mb-2" href="@Url.RouteUrl("ProductsByTagName", new { item.SeName })" style="font-size:@(Model.GetFontSize(item))%;">
+                    @item.Name
+                </a>
+            }
+        </div>
+    }
+</div>

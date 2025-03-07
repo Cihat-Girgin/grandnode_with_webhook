@@ -1,0 +1,67 @@
+﻿using Grand.Business.Checkout.Services.Payments;
+using Grand.Data;
+using Grand.Domain.Payments;
+using Grand.Infrastructure.Events;
+using MediatR;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
+
+namespace Grand.Business.Checkout.Tests.Services.Payments;
+
+[TestClass]
+public class PaymentTransactionServiceTests
+{
+    private Mock<IMediator> _mediatorMock;
+    private Mock<IRepository<PaymentTransaction>> _repositoryMock;
+    private PaymentTransactionService _service;
+
+    [TestInitialize]
+    public void Init()
+    {
+        _repositoryMock = new Mock<IRepository<PaymentTransaction>>();
+        _mediatorMock = new Mock<IMediator>();
+        _service = new PaymentTransactionService(_repositoryMock.Object, _mediatorMock.Object);
+    }
+
+    [TestMethod]
+    public async Task InsertPaymentTransaction_InvokeExpectedMethods()
+    {
+        await _service.InsertPaymentTransaction(new PaymentTransaction());
+        _repositoryMock.Verify(c => c.InsertAsync(It.IsAny<PaymentTransaction>()), Times.Once);
+        _mediatorMock.Verify(c => c.Publish(It.IsAny<EntityInserted<PaymentTransaction>>(), default), Times.Once);
+    }
+
+    [TestMethod]
+    public void InsertPaymentTransaction_NullArgument_ThrowException()
+    {
+        Assert.ThrowsExceptionAsync<ArgumentNullException>(async () => await _service.InsertPaymentTransaction(null));
+    }
+
+    [TestMethod]
+    public async Task UpdatePaymentTransaction_InvokeExpectedMethods()
+    {
+        await _service.UpdatePaymentTransaction(new PaymentTransaction());
+        _repositoryMock.Verify(c => c.UpdateAsync(It.IsAny<PaymentTransaction>()), Times.Once);
+        _mediatorMock.Verify(c => c.Publish(It.IsAny<EntityUpdated<PaymentTransaction>>(), default), Times.Once);
+    }
+
+    [TestMethod]
+    public void UpdatePaymentTransaction_NullArgument_ThrowException()
+    {
+        Assert.ThrowsExceptionAsync<ArgumentNullException>(async () => await _service.UpdatePaymentTransaction(null));
+    }
+
+    [TestMethod]
+    public async Task DeletePaymentTransaction_InvokeExpectedMethods()
+    {
+        await _service.DeletePaymentTransaction(new PaymentTransaction());
+        _repositoryMock.Verify(c => c.DeleteAsync(It.IsAny<PaymentTransaction>()), Times.Once);
+        _mediatorMock.Verify(c => c.Publish(It.IsAny<EntityDeleted<PaymentTransaction>>(), default), Times.Once);
+    }
+
+    [TestMethod]
+    public void DeletePaymentTransaction_NullArgument_ThrowException()
+    {
+        Assert.ThrowsExceptionAsync<ArgumentNullException>(async () => await _service.DeletePaymentTransaction(null));
+    }
+}

@@ -1,0 +1,28 @@
+﻿namespace Grand.Infrastructure.Plugins;
+
+/// <summary>
+///     Interface for Plugin
+///     the editing interface.
+/// </summary>
+public interface IPlugin
+{
+    /// <summary>
+    ///     Gets or sets the plugin info
+    /// </summary>
+    PluginInfo PluginInfo { get; set; }
+
+    /// <summary>
+    ///     Gets a configuration URL
+    /// </summary>
+    string ConfigurationUrl();
+
+    /// <summary>
+    ///     Install plugin
+    /// </summary>
+    Task Install();
+
+    /// <summary>
+    ///     Uninstall plugin
+    /// </summary>
+    Task Uninstall();
+}

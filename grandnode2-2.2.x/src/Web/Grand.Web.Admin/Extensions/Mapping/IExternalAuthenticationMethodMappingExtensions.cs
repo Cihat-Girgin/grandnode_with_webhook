@@ -1,0 +1,13 @@
+﻿using Grand.Business.Core.Interfaces.Authentication;
+using Grand.Infrastructure.Mapper;
+using Grand.Web.Admin.Models.ExternalAuthentication;
+
+namespace Grand.Web.Admin.Extensions.Mapping;
+
+public static class IExternalAuthenticationMethodMappingExtensions
+{
+    public static AuthenticationMethodModel ToModel(this IExternalAuthenticationProvider entity)
+    {
+        return entity.MapTo<IExternalAuthenticationProvider, AuthenticationMethodModel>();
+    }
+}

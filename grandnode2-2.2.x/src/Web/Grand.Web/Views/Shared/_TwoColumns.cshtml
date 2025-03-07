@@ -1,0 +1,118 @@
+﻿@{
+    Layout = "_Layout";
+
+    //current category ID
+    var currentCategoryId = "";
+    if (Url.ActionContext.RouteData.Values["controller"].ToString().Equals("catalog", StringComparison.OrdinalIgnoreCase) &&
+        Url.ActionContext.RouteData.Values["action"].ToString().Equals("category", StringComparison.OrdinalIgnoreCase))
+    {
+        currentCategoryId = Url.ActionContext.RouteData.Values["categoryId"].ToString();
+    }
+
+
+    //current collection ID
+    var currentCollectionId = "";
+    if (Url.ActionContext.RouteData.Values["controller"].ToString().Equals("catalog", StringComparison.OrdinalIgnoreCase) &&
+        Url.ActionContext.RouteData.Values["action"].ToString().Equals("collection", StringComparison.OrdinalIgnoreCase))
+    {
+        currentCollectionId = Url.ActionContext.RouteData.Values["collectionId"].ToString();
+    }
+
+    //current brand ID
+    var currentBrandId = "";
+    if (Url.ActionContext.RouteData.Values["controller"].ToString().Equals("catalog", StringComparison.OrdinalIgnoreCase) &&
+        Url.ActionContext.RouteData.Values["action"].ToString().Equals("brand", StringComparison.OrdinalIgnoreCase))
+    {
+        currentBrandId = Url.ActionContext.RouteData.Values["brandId"].ToString();
+    }
+
+    //current product ID
+    var currentProductId = "";
+    if (Url.ActionContext.RouteData.Values["controller"].ToString().Equals("product", StringComparison.OrdinalIgnoreCase) &&
+        Url.ActionContext.RouteData.Values["action"].ToString().Equals("productdetails", StringComparison.OrdinalIgnoreCase))
+    {
+        currentProductId = Url.ActionContext.RouteData.Values["productId"].ToString();
+    }
+}
+@if (IsSectionDefined("Breadcrumb"))
+{
+    @section Breadcrumb {
+        @await RenderSectionAsync("Breadcrumb")
+    }
+}
+
+@section meta {
+    @await RenderSectionAsync("meta", false)
+}
+
+@section head {
+    @await RenderSectionAsync("head", false)
+}
+
+@if (!string.IsNullOrEmpty(currentCategoryId))
+{
+    @await Component.InvokeAsync("Widget", new { widgetZone = "home_page_category", additionalData = Model.Id })
+}
+@if (!string.IsNullOrEmpty(currentCollectionId))
+{
+    @await Component.InvokeAsync("Widget", new { widgetZone = "home_page_collection", additionalData = Model.Id })
+}
+@if (!string.IsNullOrEmpty(currentBrandId))
+{
+    @await Component.InvokeAsync("Widget", new { widgetZone = "home_page_brand", additionalData = Model.Id })
+}
+<div id="TwoColumns" class="row custom-container mt-3">
+    <div class="d-lg-none d-block">
+        <div class="col-12">
+            <button id="sidebar-mobile-button" class="btn btn-outline-info" v-b-toggle.sidebar-mobile>
+                <b-icon icon="layout-sidebar-inset"></b-icon> @Loc["catalog.selectors.fiters"]
+            </button>
+        </div>
+        <b-sidebar id="sidebar-mobile"
+                   backdrop
+                   left
+                   shadow>
+        </b-sidebar>
+    </div>
+    <div class="col-lg-3 col-md-12 generalLeftSide order-1">
+        @if (IsSectionDefined("left"))
+        {
+            @await RenderSectionAsync("left")
+        }
+        else
+        {
+            if (IsSectionDefined("filters"))
+            {
+                @await RenderSectionAsync("filters")
+            }
+
+            @await Component.InvokeAsync("Widget", new { widgetZone = "left_side_column_before" })
+            @await Component.InvokeAsync("CategoryNavigation", new { currentCategoryId, currentProductId })
+            @await Component.InvokeAsync("Widget", new { widgetZone = "left_side_column_after_category_navigation" })
+            @await Component.InvokeAsync("CollectionNavigation", new { currentCollectionId })
+            @await Component.InvokeAsync("VendorNavigation")
+            @await Component.InvokeAsync("Widget", new { widgetZone = "left_side_column_after" })
+        }
+    </div>
+    <div class="col-lg-9 col-md-12 generalSideRight order-2">
+        @await Component.InvokeAsync("Widget", new { widgetZone = "main_column_before" })
+        @RenderBody()
+        @await Component.InvokeAsync("Widget", new { widgetZone = "main_column_after" })
+    </div>
+</div>
+<script asp-location="Footer" asp-order="300">
+    document.addEventListener("DOMContentLoaded", function () {
+        var leftSide = document.querySelector('.generalLeftSide');
+        function LeftSideBar() {
+            if (991 > (window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth)) {
+                document.querySelector("#sidebar-mobile .b-sidebar-body").appendChild(leftSide);
+            } else {
+                document.getElementById("TwoColumns").appendChild(leftSide);
+            }
+        }
+        LeftSideBar();
+        window.addEventListener("resize", function () {
+            LeftSideBar();
+        });
+    });
+</script>

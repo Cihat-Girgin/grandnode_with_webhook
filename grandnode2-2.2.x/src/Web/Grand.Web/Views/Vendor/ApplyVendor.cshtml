@@ -1,0 +1,127 @@
+﻿@using System.Text.Encodings.Web
+@model ApplyVendorModel
+@inject IPageHeadBuilder pagebuilder
+@{
+    Layout = "_SingleColumn";
+
+    //title
+    pagebuilder.AddTitleParts(Loc["Title.Vendors.Apply"]);
+}
+<div class="page apply-vendor-page">
+    <h1 class="text-center generalTitle h2">@Loc["Title.Vendors.Apply"]</h1>
+    @await Component.InvokeAsync("PageBlock", new { systemName = "ApplyVendor" })
+    @await Component.InvokeAsync("Widget", new { widgetZone = "applyvendor_top" })
+    @if (Model.DisableFormInput)
+    {
+        <div class="alert alert-success result text-xs-center">
+            @Model.Result
+        </div>
+    }
+    else
+    {
+        <validation-observer v-slot="{ handleSubmit }">
+            <form asp-route="ApplyVendorAccount" method="post" enctype="multipart/form-data" ref="form" v-on:submit.prevent="handleSubmit(formSubmit)">
+                <div asp-validation-summary="All" class="message-error"></div>
+                <div class="form-fields">
+                    <div class="form-group">
+                        <validation-provider tag="div" rules="required" name="Name" v-slot="{ errors, classes }">
+                            <label asp-for="Name" class="col-form-label">@Loc["Vendors.ApplyAccount.Name"]:</label>
+                            <span class="required">*</span>
+                            <input asp-for="Name" v-model="applyvendor.Name" placeholder="@Loc["Vendors.ApplyAccount.Name.Hint"]" v-bind:class="[classes , 'form-control']"
+                                   data-val-required=@Loc["Vendors.ApplyAccount.Name.Required"]/>
+                            <span class="field-validation-error">{{ errors[0] }}</span>
+                            <span asp-validation-for="Name"></span>
+                        </validation-provider>
+                    </div>
+                    <div class="form-group">
+                        <validation-provider tag="div" rules="required|email" name="Email" v-slot="{ errors, classes }">
+                            <label asp-for="Email" class="col-form-label">@Loc["Vendors.ApplyAccount.Email"]:</label>
+                            <span class="required">*</span>
+                            <input asp-for="Email" v-model="applyvendor.Email" placeholder="@Loc["Vendors.ApplyAccount.Email.Hint"]" v-bind:class="[classes , 'form-control']"
+                                   data-val-email=@Loc["Common.WrongEmail"] data-val-required=@Loc["Account.ApplyAccount.Email.Required"]/>
+                            <span class="field-validation-error">{{ errors[0] }}</span>
+                            <span asp-validation-for="Email"></span>
+                        </validation-provider>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Description" class="col-form-label">@Loc["Vendors.ApplyAccount.Description"]:</label>
+                        <textarea asp-for="Description" class="form-control description"></textarea>
+                    </div>
+                    @if (Model.DisplayCaptcha)
+                    {
+                        <div class="captcha-box">
+                            <captcha/>
+                        </div>
+                    }
+                    <div asp-validation-summary="All" class="message-error"></div>
+                    @{
+                        var dataDictAddress = new ViewDataDictionary(ViewData)
+                        {
+                            TemplateInfo =
+                            {
+                                HtmlFieldPrefix = "Address"
+                            }
+                        };
+                        <partial name="Partials/CreateOrUpdateVendorAddress" model="Model.Address" view-data="dataDictAddress"/>
+                    }
+                    @if (Model.TermsOfServiceEnabled)
+                    {
+                        <script asp-location="Footer" asp-order="300">
+                        document.addEventListener("DOMContentLoaded", function () {
+                            document.getElementById('apply-vendor').addEventListener('click', function () {
+                                if (document.getElementById('accept-terms-of-service').checked) {
+                                    //do some stuff
+                                    return true;
+                                } else {
+                                    //just show validation errors, dont post
+                                    alert('@Html.Raw(JavaScriptEncoder.Default.Encode(Loc["Vendors.ApplyAccount.AcceptTermsOfService.Required"]))');
+                                    return false;
+                                }
+                            });
+                        });
+                        </script>
+                        <div class="form-group">
+                            <validation-provider tag="div" vid="applyvendor.AcceptPrivacyPolicy" :rules="{ required: { allowFalse: false } }" v-slot="{ errors, classes }">
+                                <div class="d-inline-flex">
+                                    <label class="custom-control custom-checkbox">
+                                        <input id="accept-privacy-policy" name="acceptprivacypolicy" v-model="applyvendor.AcceptPrivacyPolicy" autofocus="autofocus" data-val="true" data-val-required="@Loc["account.fields.acceptprivacypolicy.required"]" type="checkbox" v-bind:class="[classes , 'form-control custom-control-input']">
+                                        <span class="custom-control-label"></span>
+                                        <span class="custom-control-description">@Loc["Vendors.ApplyAccount.AcceptTermsOfService"]</span>
+                                    </label>
+                                    @if (Model.TermsOfServicePopup)
+                                    {
+                                        <b-link class="read mx-2" onclick="window.open('@Url.RouteUrl("PagePopup", new { SystemName = "VendorTermsOfService" })', 450, 500, true)">@Loc["Vendors.ApplyAccount.AcceptTermsOfService.Read"]</b-link>
+                                    }
+                                    else
+                                    {
+                                        <a class="read" id="read-acceptterms" href="@Url.RouteUrl("Page", new { SeName = "VendorTermsOfService" })">@Loc["Vendors.ApplyAccount.AcceptTermsOfService.Read"]</a>
+                                    }
+                                </div>
+                                <span class="field-validation-error d-flex w-100">{{ errors[0] }}</span>
+                            </validation-provider>
+                        </div>
+                    }
+                </div>
+                <div class="row">
+                    <div class="col-12 buttons pt-1 pb-1">
+                        <input type="submit" id="apply-vendor" class="btn btn-info apply-vendor-button" value="@Loc["Vendors.ApplyAccount.Button"]"/>
+                    </div>
+                </div>
+            </form>
+        </validation-observer>
+        <script asp-location="Footer" asp-order="302">
+            var applyvendor = new Vue({
+                data: () => ({
+                    @{
+                        <text>
+                            Name: '@Html.Raw(Model.Name)',
+                            Email: '@Html.Raw(Model.Email)',
+                            AcceptPrivacyPolicy: false
+                        </text>
+                    }
+                })
+            });
+        </script>
+    }
+    @await Component.InvokeAsync("Widget", new { widgetZone = "applyvendor_bottom" })
+</div>

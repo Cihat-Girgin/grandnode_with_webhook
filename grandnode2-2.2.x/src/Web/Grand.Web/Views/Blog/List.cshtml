@@ -1,0 +1,111 @@
+﻿@model BlogPostListModel
+@inject IPageHeadBuilder pagebuilder
+@{
+    Layout = "_TwoColumns";
+
+    //title
+    pagebuilder.AddTitleParts(Loc["Title.Blog"]);
+}
+
+@section left {
+    @await Component.InvokeAsync("Widget", new { widgetZone = "left_side_column_blog_before" })
+    @await Component.InvokeAsync("BlogCategories")
+    @await Component.InvokeAsync("Widget", new { widgetZone = "left_side_column_before_blog_archive" })
+    @await Component.InvokeAsync("BlogMonths")
+    @await Component.InvokeAsync("Widget", new { widgetZone = "left_side_column_after_blog_archive" })
+    @await Component.InvokeAsync("BlogTags")
+    @await Component.InvokeAsync("Widget", new { widgetZone = "left_side_column_blog_after" })
+}
+
+<div class="page blog-page">
+    <h2 class="generalTitle">
+        @if (string.IsNullOrEmpty(Model.PagingFilteringContext.Tag))
+        {
+            if (Model.PagingFilteringContext.GetParsedMonth().HasValue)
+            {
+                @string.Format(Loc["Blog.FilteredByMonth"], Model.PagingFilteringContext.GetParsedMonth().Value.Year, Model.PagingFilteringContext.GetParsedMonth().Value.ToString("MMMM"))
+            }
+            else
+            {
+                @Loc["Blog"]
+            }
+        }
+        else
+        {
+            @string.Format(Loc["Blog.TaggedWith"], Model.PagingFilteringContext.Tag)
+        }
+        @if (!string.IsNullOrEmpty(Model.SearchKeyword))
+        {
+            <label class="mb-0 error-label red">
+                @Loc["Blog.ResultsFor"] <i>@Model.SearchKeyword</i>
+            </label>
+        }
+    </h2>
+    <form method="get" id="small-search-box-form-blog" asp-action="BlogByKeyword" asp-controller="Blog" novalidate="novalidate">
+        <div class="mb-3 input-group">
+            <span role="status" aria-live="polite" class="ui-helper-hidden-accessible"></span>
+            <input type="text" class="form-control search-box-text ui-autocomplete-input" id="small-searchterms-blog"
+                   autocomplete="off" name="SearchKeyword" placeholder="@Loc["Blog.SearchPlaceholder"]">
+
+            <span class="input-group-append">
+                <button type="submit" class="btn btn-info d-flex align-items-center float-sm-right">
+                    <span class="sr-only">Search store</span>
+                    <b-icon icon="search" class="mx-1"></b-icon>
+                    <span class="d-none d-lg-block">@Loc["Blog.Search"]</span>
+                </button>
+            </span>
+        </div>
+    </form>
+    @await Component.InvokeAsync("Widget", new { widgetZone = "bloglist_page_before_posts" })
+    <div class="row blog-posts">
+        @foreach (var item in Model.BlogPosts)
+        {
+            @await Component.InvokeAsync("Widget", new { widgetZone = "bloglist_page_before_post", additionalData = item.Id })
+            <div class="col-xl-6 col-12">
+                <div class="card">
+                    @if (!string.IsNullOrEmpty(item.PictureModel.ImageUrl))
+                    {
+                        <b-img-lazy class="img-fluid card-img-top" src="@item.PictureModel.ImageUrl" alt="@item.PictureModel.AlternateText"></b-img-lazy>
+                    }
+                    <div class="card-header">
+                        <h3 class="h5 mb-0">
+                            <a href="@Url.RouteUrl("BlogPost", new { item.SeName })">
+                                @item.Title
+                            </a>
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        @Html.Raw(!string.IsNullOrEmpty(item.BodyOverview) ? item.BodyOverview : item.Body)
+                        @if (item.Tags.Any())
+                        {
+                            <div class="tags">
+                                <div class="col-form-label w-100">@Loc["Blog.Tags"]:</div>
+
+                                @for (var i = 0; i < item.Tags.Count; i++)
+                                {
+                                    var tag = item.Tags[i];
+                                    <a class="btn btn-sm btn-light my-1" href="@Url.RouteUrl("BlogByTag", new { tag })">@tag</a>
+                                }
+                            </div>
+                        }
+                        <div class="buttons mt-3">
+                            @if (item.AllowComments)
+                            {
+                                <a href="@Url.RouteUrl("BlogPost", new { item.SeName })#comments" class="btn btn-outline-secondary read-comments">@string.Format(Loc["Blog.CommentsLink"], item.NumberOfComments)</a>
+                            }
+                            <a href="@Url.RouteUrl("BlogPost", new { item.SeName })" class="btn btn-outline-info read-more">@Loc["Blog.MoreInfo"]</a>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <small class="text-muted">@item.CreatedOn.ToString("D")</small>
+                    </div>
+                    @await Component.InvokeAsync("Widget", new { widgetZone = "bloglist_page_inside_post", additionalData = item.Id })
+                </div>
+            </div>
+            @await Component.InvokeAsync("Widget", new { widgetZone = "bloglist_page_after_post", additionalData = item.Id })
+        }
+    </div>
+    <page-navigation asp-query-param="pagenumber" asp-pagination="Model.PagingFilteringContext"/>
+
+    @await Component.InvokeAsync("Widget", new { widgetZone = "bloglist_page_after_posts" })
+</div>
