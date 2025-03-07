@@ -154,11 +154,6 @@ namespace Grand.Web.API.Controllers
                 var orderItem = new OrderItem();
                 var product = products.FirstOrDefault(p => p.Sku == itemModel.Sku);
 
-                if (product is null)
-                {
-                    throw new WebHookCreateOrderException(WebHookError.CreateOrder.ProductMap, HttpStatusCode.InternalServerError);
-                }
-
                 orderItem.ProductId = product.Id;
                 orderItem.Sku = itemModel.Sku;
                 orderItem.Quantity = itemModel.Quantity;
