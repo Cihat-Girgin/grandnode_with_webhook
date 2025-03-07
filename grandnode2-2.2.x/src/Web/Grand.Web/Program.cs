@@ -1,6 +1,7 @@
 ﻿using Grand.Web.Common.Extensions;
 using Grand.Web.Common.Startup;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Hosting;
 using Serilog;
 using Serilog.Events;
@@ -21,6 +22,15 @@ Log.Logger = new LoggerConfiguration()
     .CreateLogger();
 
 builder.Logging.AddSerilog();
+
+builder.Services.AddRateLimiter(options => {
+    options.AddFixedWindowLimiter("WebHookOrder", opts =>
+    {
+        opts.AutoReplenishment = true;
+        opts.PermitLimit = 100;
+        opts.Window = TimeSpan.FromMinutes(1);
+    });
+});
 
 //add configuration
 builder.Configuration.AddAppSettingsJsonFile(args);

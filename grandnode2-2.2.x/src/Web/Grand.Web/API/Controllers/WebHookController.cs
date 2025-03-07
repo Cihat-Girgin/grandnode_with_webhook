@@ -13,6 +13,7 @@ using Grand.Web.API.Exceptions;
 using Grand.Web.API.Models;
 using Grand.Web.API.Utils;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using MongoDB.Driver;
 using Polly;
 using Polly.Retry;
@@ -55,6 +56,7 @@ namespace Grand.Web.API.Controllers
         #region Endpoints
         [HttpPost]
         [CreateOrderAuthorize]
+        [EnableRateLimiting("WebHookOrder")]
         public async Task<IActionResult> CreateOrder(WebHookOrderModel order)
         {
             return await _retryPolicy.ExecuteAsync(() => ValidateAndProcessOrder(order));

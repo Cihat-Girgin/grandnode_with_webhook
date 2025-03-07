@@ -102,7 +102,6 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{776DB681-3FC0-4EE0-A0F9-3F69874314D6}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
-		WEBHOOK_README.md = WEBHOOK_README.md
 		web_hook_order_request.json = web_hook_order_request.json
 	EndProjectSection
 EndProject
