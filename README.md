@@ -4,13 +4,13 @@ GrandNode için sistem haricinde dışardan gelen siparişleri işleyen end-poin
 
 ## Installation
 
-1. **Mongo DB**'yi ayağa kaldırın.
-2. Ardından **'testdb'** isminde bir veritabanı oluşturun.
-3. Uygulamayı ayağa kaldırın ve **GrandNode** kurulumunu yapın.
+1. **Mongo DB**'yi Dockerda veya lokalinizde ayağa kaldırın.
+2. Ardından GrandNode sample dataları için örnek bir veritabanı oluşturun.
+3. Uygulamayı ayağa kaldırın ve oluşturduğunuz veritabanı bilgileriyle **GrandNode** kurulumunu yapın.
 
 ## Api Workflow
 
-İlgili end-point **Grand.Web** projesi içine konumlanmıştır. (Case kapsamı ve süresi dahilinde minimal bir çözüm yoluna gidilmiştir. Standart olarak ayrı bir web uygulaması olmalı ve izole çalışmalıdır.)
+İlgili end-point **Grand.Web** projesi içine konumlanmıştır.
 
 Uygulamayla birlikte ayağa kalkar ve **https://localhost:44350/api/webhook** adresine yapılan **POST** isteklerini kabul eder.
 
@@ -47,7 +47,7 @@ End-point içerisinde herhangi bir sistem hatası oluşursa **Serilog** yardım�
 
 ## Idempotency Check
 
-End-point, gelen istekte benzersiz bir **IdempotencyKey** değeri bekler. İsteği yapan client ve end-point arasında tutarlılık olması açısından isteğin başında bu değere sahip order olup olmadığını kontrol eder.
+End-point, gelen istekte benzersiz ve ilgili requesti temsil eden bir **IdempotencyKey** değeri bekler. Client ve end-point arasında tutarlılık olması açısından isteğin başında bu değere sahip order olup olmadığını kontrol eder.
 
 - Eğer bu key'e ait bir order varsa direkt o order'ın **id**'sini döner.
 
