@@ -26,14 +26,12 @@ namespace Grand.Web.API.Controllers
     public class WebHookController : ControllerBase
     {
         #region Fields
-
         private readonly AsyncRetryPolicy _retryPolicy;
         private readonly ICustomerService _customerService;
         private readonly IProductService _productService;
         private readonly IOrderService _orderService;
         private readonly IStoreService _storeService;
         private Store _store;
-        
         #endregion
 
         #region Constructors
@@ -52,11 +50,9 @@ namespace Grand.Web.API.Controllers
 
             });
         }
-
         #endregion
 
         #region Endpoints
-       
         [HttpPost]
         [CreateOrderAuthorize]
         public async Task<IActionResult> CreateOrder(WebHookOrderModel order)
@@ -66,11 +62,9 @@ namespace Grand.Web.API.Controllers
                 return await CreateOrderProcess(order);
             });
         }
-        
         #endregion
 
         #region Create Order Helper Methods
-        
         [NonAction]
         private async Task<IActionResult> CreateOrderProcess(WebHookOrderModel order)
         {
@@ -220,7 +214,6 @@ namespace Grand.Web.API.Controllers
         {
             return _storeService.GetStoreByName(storeName);
         }
-       
         #endregion
     }
 }
