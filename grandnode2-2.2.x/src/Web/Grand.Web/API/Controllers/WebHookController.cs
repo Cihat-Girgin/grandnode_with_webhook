@@ -32,6 +32,7 @@ namespace Grand.Web.API.Controllers
         private readonly IProductService _productService;
         private readonly IOrderService _orderService;
         private readonly IStoreService _storeService;
+        private CustomerInfo _customerInfo;
         #endregion
 
         #region Constructors
@@ -47,7 +48,6 @@ namespace Grand.Web.API.Controllers
             .WaitAndRetryAsync(3, attempt => TimeSpan.FromSeconds(Math.Pow(2, attempt)), (result, timeSpan, retryCount, context) =>
             {
                 Log.Error($"{WebHookError.CreateOrder.OrderCouldNotBeCreated}\nRetry Count:{retryCount}");
-
             });
         }
         #endregion
@@ -65,35 +65,37 @@ namespace Grand.Web.API.Controllers
         [NonAction]
         private async Task<IActionResult> CreateOrderProcess(WebHookOrderModel order)
         {
-            var customerInfo = new CustomerInfo();
-
             try
             {
+
                 var orderProcessed = await _orderService.GetOrderByIdempotencyKey(order.IdempotencyKey);
 
-                if (orderProcessed is not null) return Ok(orderProcessed.Id);
+                if (orderProcessed is not null)
+                    return Ok(orderProcessed.Id);
 
-                var store = await _storeService.GetStoreByName(order.StoreName); 
+                var store = await _storeService.GetStoreByName(order.StoreName);
 
-                if (store is null) return BadRequest(WebHookError.CreateOrder.StoreNotFound);
+                if (store is null)
+                    return BadRequest(WebHookError.CreateOrder.StoreNotFound);
 
                 var validateOrderItems = await ValidateOrderItems(order);
 
-                if (validateOrderItems.IsValid is false) return BadRequest(WebHookError.CreateOrder.ProductMap);
+                if (validateOrderItems.IsValid is false)
+                    return BadRequest(WebHookError.CreateOrder.ProductMap);
 
-                customerInfo = await GetOrCreateCustomer(order);
+                _customerInfo = await GetOrCreateCustomer(order);
 
                 var products = validateOrderItems.Products;
 
-                Order createdOrder = await BuildOrder(order, customerInfo.Customer, products, store.Id);
+                Order createdOrder = await BuildOrder(order, _customerInfo.Customer, products, store.Id);
 
                 return Ok(createdOrder.Id);
             }
             catch (Exception ex)
             {
-                if (customerInfo.IsNewCustomer)
+                if (_customerInfo is not null && _customerInfo.IsNewCustomer)
                 {
-                    await _customerService.DeleteCustomer(customerInfo.Customer);
+                    await _customerService.DeleteCustomer(_customerInfo.Customer);
                 }
 
                 Log.Error($"Key:{order.IdempotencyKey} {WebHookError.CreateOrder.OrderCouldNotBeCreated}: {ex.Message}\n{WebHookError.StackTrace}: {ex.StackTrace}");
