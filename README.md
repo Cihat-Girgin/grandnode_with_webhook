@@ -16,6 +16,9 @@ Uygulamayla birlikte ayağa kalkar ve **https://localhost:44350/api/webhook** ad
 
 End-point'i test etmek için **Solution Items** altındaki **Postman** dökümanını (**web_hook_order_request.json**) kullanabilirsiniz.
 
+![image](https://github.com/user-attachments/assets/b9d39e3c-4bac-4ab9-80f3-5ec40b68e0ce)
+
+
 ## Validation
 
 End-point'e gönderilen modeldeki alanlar **Fluent Validation** yardımıyla validate edilmektedir. (**WebHookOrderModelValidator**)
