@@ -1,6 +1,6 @@
 # Web Hook API
 
-GrandNode için sistem haricinde dışardan gelen siparişleri işleyen end-point.
+GrandNode için akış haricinde dışardan gelen siparişleri işleyen end-point.
 
 ## Installation
 
