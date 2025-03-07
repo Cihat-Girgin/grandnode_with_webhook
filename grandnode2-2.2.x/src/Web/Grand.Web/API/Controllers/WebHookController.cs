@@ -102,6 +102,48 @@ namespace Grand.Web.API.Controllers
                 throw new WebHookCreateOrderException(errorLogMessage, HttpStatusCode.InternalServerError);
             }
         }
+       
+        private async Task<(bool IsValid, List<Product> Products)> ValidateOrderItems(WebHookOrderModel order)
+        {
+            var skuList = order.OrderItems.Select(oi => oi.Sku).Distinct().ToArray();
+
+            var products = await _productService.GetProductsBySkuList(skuList);
+
+            var isValid = skuList.Length == products.Count;
+
+            return (isValid, products);
+        }
+
+        private async Task<CustomerInfo> FindOrCreateCustomerByEmail(WebHookOrderModel order)
+        {
+            var customer = await _customerService.GetCustomerByEmail(order.Customer.Email);
+            bool isNewCustomer = false;
+
+            if (customer is null)
+            {
+                var newCustomer = new Customer() {
+                    Username = order.Customer.Email,
+                    Email = order.Customer.Email,
+                    SystemName = "WebHookUser",
+                    UserFields = new List<UserField>() {
+                        new UserField() {
+                            Key = nameof(order.Customer.FirstName),
+                            Value = order.Customer.FirstName
+                        },
+                        new UserField() {
+                            Key = nameof(order.Customer.LastName),
+                            Value = order.Customer.LastName
+                        }
+                    }
+
+                };
+
+                isNewCustomer = true;
+                customer = await _customerService.InsertWebHookCustomer(newCustomer);
+            }
+
+            return new CustomerInfo() { IsNewCustomer = isNewCustomer, Customer = customer };
+        }
 
         private ICollection<OrderItem> BuildOrderItems(List<WebHookOrderItemModel> orderItemModels, List<Product> products)
         {
@@ -152,48 +194,6 @@ namespace Grand.Web.API.Controllers
             var createdOrder = await _orderService.InsertWebHookOrder(orderEntity);
 
             return createdOrder;
-        }
-
-        private async Task<(bool IsValid, List<Product> Products)> ValidateOrderItems(WebHookOrderModel order)
-        {
-            var skuList = order.OrderItems.Select(oi => oi.Sku).Distinct().ToArray();
-
-            var products = await _productService.GetProductsBySkuList(skuList);
-
-            var isValid = skuList.Length == products.Count;
-
-            return (isValid, products);
-        }
-
-        private async Task<CustomerInfo> FindOrCreateCustomerByEmail(WebHookOrderModel order)
-        {
-            var customer = await _customerService.GetCustomerByEmail(order.Customer.Email);
-            bool isNewCustomer = false;
-
-            if (customer is null)
-            {
-                var newCustomer = new Customer() {
-                    Username = order.Customer.Email,
-                    Email = order.Customer.Email,
-                    SystemName = "WebHookUser",
-                    UserFields = new List<UserField>() {
-                        new UserField() {
-                            Key = nameof(order.Customer.FirstName),
-                            Value = order.Customer.FirstName
-                        },
-                        new UserField() {
-                            Key = nameof(order.Customer.LastName),
-                            Value = order.Customer.LastName
-                        }
-                    }
-
-                };
-
-                isNewCustomer = true;
-                customer = await _customerService.InsertWebHookCustomer(newCustomer);
-            }
-
-            return new CustomerInfo() { IsNewCustomer = isNewCustomer, Customer = customer };
         }
         #endregion
     }
