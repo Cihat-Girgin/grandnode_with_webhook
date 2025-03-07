@@ -47,7 +47,7 @@ End-point içerisinde herhangi bir sistem hatası oluşursa **Serilog** yardım�
 
 ## Idempotency Check
 
-End-point, gelen istekte benzersiz bir **IdempotencyKey** değeri bekler. İsteği yapan client ve end-point arasında tutarlılık olması açısından isteğin başında bu değere sahip order olup olmadığını kontrol eder.
+End-point, gelen istekte benzersiz ve ilgili requesti temsil eden bir **IdempotencyKey** değeri bekler. Client ve end-point arasında tutarlılık olması açısından isteğin başında bu değere sahip order olup olmadığını kontrol eder.
 
 - Eğer bu key'e ait bir order varsa direkt o order'ın **id**'sini döner.
 
