@@ -203,7 +203,7 @@ namespace Grand.Web.API.Controllers
 
                 if (product is null)
                 {
-                    //err
+                    throw new WebHookCreateOrderException(WebHookError.CreateOrder.ProductMap, HttpStatusCode.InternalServerError);
                 }
 
                 orderItem.ProductId = product.Id;
