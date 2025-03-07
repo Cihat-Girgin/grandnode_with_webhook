@@ -10,7 +10,7 @@ GrandNode için sistem haricinde dışardan gelen siparişleri işleyen end-poin
 
 ## Api Workflow
 
-İlgili end-point **Grand.Web** projesi içine konumlanmıştır. (Case kapsamı ve süresi dahilinde minimal bir çözüm yoluna gidilmiştir. Standart olarak ayrı bir web uygulaması olmalı ve izole çalışmalıdır.)
+İlgili end-point **Grand.Web** projesi içine konumlanmıştır.
 
 Uygulamayla birlikte ayağa kalkar ve **https://localhost:44350/api/webhook** adresine yapılan **POST** isteklerini kabul eder.
 
