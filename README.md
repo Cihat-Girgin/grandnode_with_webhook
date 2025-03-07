@@ -4,6 +4,7 @@ GrandNode için dış sistemlerden gelen siparişleri işleyen end-point.
 
 - Dış sistemlerden gelen sipariş verilerini alır.
 - Siparişin geçerli olup olmadığını kontrol eder (örneğin, ürünlerin mevcudiyeti, müşteri bilgileri, vb.).
+- Müşteri GrandMode veritabanında kayıtlı değilse yeni müşteri oluşturur.
 - Siparişi GrandNode veritabanına işler ve kaydeder.
 - Hatalı siparişlerde uygun hata mesajları döner.
 
