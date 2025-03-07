@@ -67,7 +67,6 @@ namespace Grand.Web.API.Controllers
         {
             try
             {
-
                 var orderProcessed = await _orderService.GetOrderByIdempotencyKey(order.IdempotencyKey);
 
                 if (orderProcessed is not null)
@@ -98,7 +97,7 @@ namespace Grand.Web.API.Controllers
                     await _customerService.DeleteCustomer(_customerInfo.Customer);
                 }
 
-                Log.Error($"Key:{order.IdempotencyKey} {WebHookError.CreateOrder.OrderCouldNotBeCreated}: {ex.Message}\n{WebHookError.StackTrace}: {ex.StackTrace}");
+                Log.Error($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Key:{order.IdempotencyKey} {WebHookError.CreateOrder.OrderCouldNotBeCreated}: {ex.Message}\n{WebHookError.StackTrace}: {ex.StackTrace}");
 
                 throw new WebHookCreateOrderException(WebHookError.CreateOrder.OrderCouldNotBeCreated, HttpStatusCode.InternalServerError);
             }
