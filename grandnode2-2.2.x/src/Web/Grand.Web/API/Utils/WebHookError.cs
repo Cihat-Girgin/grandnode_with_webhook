@@ -2,10 +2,12 @@
 {
     public struct WebHookError
     {
+
         public static string StackTrace = "StackTrace";
+        public static string RetryCount = "Retry Count";
         public struct CreateOrder
         {
-
+            public static string Key = "WebHookOrderKey";
             public static string ProductMap = "Ürün Eşleşmelerinde problem var. Ürün SKU'larını kontrol ediniz.";
             public static string OrderCouldNotBeCreated = "Sipariş oluşturulurken bir hata meydana geldi";
             public static string StoreNotFound = "Mağaza bulunamadı.";

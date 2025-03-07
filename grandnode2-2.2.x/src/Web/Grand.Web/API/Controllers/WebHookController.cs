@@ -47,7 +47,7 @@ namespace Grand.Web.API.Controllers
             .Handle<WebHookCreateOrderException>()
             .WaitAndRetryAsync(3, attempt => TimeSpan.FromSeconds(Math.Pow(2, attempt)), (result, timeSpan, retryCount, context) =>
             {
-                Log.Error($"{WebHookError.CreateOrder.OrderCouldNotBeCreated}\nRetry Count:{retryCount}");
+                Log.Error($"{WebHookError.RetryCount}:{retryCount}\n{result.Message}");
             });
         }
         #endregion
@@ -97,9 +97,9 @@ namespace Grand.Web.API.Controllers
                     await _customerService.DeleteCustomer(_customerInfo.Customer);
                 }
 
-                Log.Error($"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Key:{order.IdempotencyKey} {WebHookError.CreateOrder.OrderCouldNotBeCreated}: {ex.Message}\n{WebHookError.StackTrace}: {ex.StackTrace}");
+                var errorLogMessage = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] {WebHookError.CreateOrder.Key}:{order.IdempotencyKey} {WebHookError.CreateOrder.OrderCouldNotBeCreated}\n{ex.Message}\n{WebHookError.StackTrace} : {ex.StackTrace}";
 
-                throw new WebHookCreateOrderException(WebHookError.CreateOrder.OrderCouldNotBeCreated, HttpStatusCode.InternalServerError);
+                throw new WebHookCreateOrderException(errorLogMessage, HttpStatusCode.InternalServerError);
             }
         }
 
