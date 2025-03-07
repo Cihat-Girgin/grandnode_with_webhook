@@ -145,7 +145,7 @@ namespace Grand.Web.API.Controllers
 
         private async Task<(bool IsValid, List<Product> Products)> ValidateOrderItems(WebHookOrderModel order)
         {
-            var skuList = order.OrderItems.Select(oi => oi.Sku).ToArray();
+            var skuList = order.OrderItems.Select(oi => oi.Sku).Distinct().ToArray();
 
             var products = await _productService.GetProductsBySkuList(skuList);
 
