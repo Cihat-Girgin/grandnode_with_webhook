@@ -69,32 +69,19 @@ namespace Grand.Web.API.Controllers
 
             try
             {
-                //Idempotency Check
                 var orderProcessed = await _orderService.GetOrderByIdempotencyKey(order.IdempotencyKey);
 
-                if (orderProcessed is not null)
-                {
-                    return Ok(orderProcessed.Id);
-                }
+                if (orderProcessed is not null) return Ok(orderProcessed.Id);
 
-                //Store Check
                 var store = await _storeService.GetStoreByName(order.StoreName); 
 
-                if (store is null)
-                {
-                    return BadRequest(WebHookError.CreateOrder.StoreNotFound);
-                }
+                if (store is null) return BadRequest(WebHookError.CreateOrder.StoreNotFound);
 
-                //Order Items SKU Check
                 var validateOrderItems = await ValidateOrderItems(order);
 
-                if (validateOrderItems.IsValid is false)
-                {
-                    return BadRequest(WebHookError.CreateOrder.ProductMap);
-                }
+                if (validateOrderItems.IsValid is false) return BadRequest(WebHookError.CreateOrder.ProductMap);
 
-                //Set Customer
-                customerInfo = await SetCustomer(order);
+                customerInfo = await GetOrCreateCustomer(order);
 
                 var products = validateOrderItems.Products;
 
@@ -112,7 +99,6 @@ namespace Grand.Web.API.Controllers
                 Log.Error($"Key:{order.IdempotencyKey} {WebHookError.CreateOrder.OrderCouldNotBeCreated}: {ex.Message}\n{WebHookError.StackTrace}: {ex.StackTrace}");
 
                 throw new WebHookCreateOrderException(WebHookError.CreateOrder.OrderCouldNotBeCreated, HttpStatusCode.InternalServerError);
-
             }
         }
 
@@ -154,7 +140,7 @@ namespace Grand.Web.API.Controllers
             return (isValid, products);
         }
 
-        private async Task<CustomerInfo> SetCustomer(WebHookOrderModel order)
+        private async Task<CustomerInfo> GetOrCreateCustomer(WebHookOrderModel order)
         {
             var customer = await _customerService.GetCustomerByEmail(order.Customer.Email);
             bool isNewCustomer = false;
