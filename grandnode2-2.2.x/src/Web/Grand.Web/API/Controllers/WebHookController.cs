@@ -26,12 +26,14 @@ namespace Grand.Web.API.Controllers
     public class WebHookController : ControllerBase
     {
         #region Fields
+
         private readonly AsyncRetryPolicy _retryPolicy;
         private readonly ICustomerService _customerService;
         private readonly IProductService _productService;
         private readonly IOrderService _orderService;
         private readonly IStoreService _storeService;
         private Store _store;
+        
         #endregion
 
         #region Constructors
@@ -50,9 +52,11 @@ namespace Grand.Web.API.Controllers
 
             });
         }
+
         #endregion
 
         #region Endpoints
+       
         [HttpPost]
         [CreateOrderAuthorize]
         public async Task<IActionResult> CreateOrder(WebHookOrderModel order)
@@ -62,9 +66,11 @@ namespace Grand.Web.API.Controllers
                 return await CreateOrderProcess(order);
             });
         }
+        
         #endregion
 
         #region Create Order Helper Methods
+        
         [NonAction]
         private async Task<IActionResult> CreateOrderProcess(WebHookOrderModel order)
         {
@@ -116,6 +122,7 @@ namespace Grand.Web.API.Controllers
 
             }
         }
+
         private async Task<Order> BuildOrder(WebHookOrderModel order, Customer customer, List<Product> products)
         {
             var orderEntity = new Order() {
@@ -142,6 +149,7 @@ namespace Grand.Web.API.Controllers
 
             return createdOrder;
         }
+
         private async Task<(bool IsValid, List<Product> Products)> ValidateOrderItems(WebHookOrderModel order)
         {
             var skuList = order.OrderItems.Select(oi => oi.Sku).ToArray();
@@ -152,6 +160,7 @@ namespace Grand.Web.API.Controllers
 
             return (isValid, products);
         }
+        
         private async Task<(bool IsNewCustomer, Customer Customer)> SetCustomer(WebHookOrderModel order)
         {
             var customer = await _customerService.GetCustomerByEmail(order.Customer.Email);
@@ -182,6 +191,7 @@ namespace Grand.Web.API.Controllers
 
             return (isNewCustomer, customer);
         }
+        
         private ICollection<OrderItem> BuildOrderItems(List<WebHookOrderItemModel> orderItemModels, List<Product> products)
         {
             var responseModel = new List<OrderItem>();
@@ -205,10 +215,12 @@ namespace Grand.Web.API.Controllers
 
             return responseModel;
         }
+        
         private Task<Store> GetStoreByName(string storeName)
         {
             return _storeService.GetStoreByName(storeName);
         }
+       
         #endregion
     }
 }
