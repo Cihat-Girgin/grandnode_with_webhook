@@ -57,13 +57,13 @@ namespace Grand.Web.API.Controllers
         [CreateOrderAuthorize]
         public async Task<IActionResult> CreateOrder(WebHookOrderModel order)
         {
-            return await _retryPolicy.ExecuteAsync(() => CreateOrderProcess(order));
+            return await _retryPolicy.ExecuteAsync(() => ValidateAndProcessOrder(order));
         }
         #endregion
 
         #region Create Order Helper Methods
         [NonAction]
-        private async Task<IActionResult> CreateOrderProcess(WebHookOrderModel order)
+        private async Task<IActionResult> ValidateAndProcessOrder(WebHookOrderModel order)
         {
             try
             {
@@ -82,7 +82,7 @@ namespace Grand.Web.API.Controllers
                 if (validateOrderItems.IsValid is false)
                     return BadRequest(WebHookError.CreateOrder.ProductMap);
 
-                _customerInfo = await GetOrCreateCustomer(order);
+                _customerInfo = await FindOrCreateCustomerByEmail(order);
 
                 var products = validateOrderItems.Products;
 
@@ -165,7 +165,7 @@ namespace Grand.Web.API.Controllers
             return (isValid, products);
         }
 
-        private async Task<CustomerInfo> GetOrCreateCustomer(WebHookOrderModel order)
+        private async Task<CustomerInfo> FindOrCreateCustomerByEmail(WebHookOrderModel order)
         {
             var customer = await _customerService.GetCustomerByEmail(order.Customer.Email);
             bool isNewCustomer = false;
