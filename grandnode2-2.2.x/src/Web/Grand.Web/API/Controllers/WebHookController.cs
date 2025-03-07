@@ -64,7 +64,6 @@ namespace Grand.Web.API.Controllers
         }
         #endregion
 
-        //@todo: Servis katmanına taşı veya helper class yaz
         #region Create Order Helper Methods
         [NonAction]
         private async Task<IActionResult> CreateOrderProcess(WebHookOrderModel order)
