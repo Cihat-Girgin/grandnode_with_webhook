@@ -86,7 +86,7 @@ namespace Grand.Web.API.Controllers
 
                 var products = validateOrderItems.Products;
 
-                Order createdOrder = await BuildOrder(order, _customerInfo.Customer, products, store.Id);
+                Order createdOrder = await InsertOrder(order, _customerInfo.Customer, products, store.Id);
 
                 return Ok(createdOrder.Id);
             }
@@ -103,7 +103,31 @@ namespace Grand.Web.API.Controllers
             }
         }
 
-        private async Task<Order> BuildOrder(WebHookOrderModel order, Customer customer, List<Product> products, string storeId)
+        private ICollection<OrderItem> BuildOrderItems(List<WebHookOrderItemModel> orderItemModels, List<Product> products)
+        {
+            var responseModel = new List<OrderItem>();
+
+            foreach (var itemModel in orderItemModels)
+            {
+                var orderItem = new OrderItem();
+                var product = products.FirstOrDefault(p => p.Sku == itemModel.Sku);
+
+                if (product is null)
+                {
+                    throw new WebHookCreateOrderException(WebHookError.CreateOrder.ProductMap, HttpStatusCode.InternalServerError);
+                }
+
+                orderItem.ProductId = product.Id;
+                orderItem.Sku = itemModel.Sku;
+                orderItem.Quantity = itemModel.Quantity;
+
+                responseModel.Add(orderItem);
+            }
+
+            return responseModel;
+        }
+
+        private async Task<Order> InsertOrder(WebHookOrderModel order, Customer customer, List<Product> products, string storeId)
         {
             var orderEntity = new Order() {
                 CustomerId = customer.Id,
@@ -170,30 +194,6 @@ namespace Grand.Web.API.Controllers
             }
 
             return new CustomerInfo() { IsNewCustomer = isNewCustomer, Customer = customer };
-        }
-
-        private ICollection<OrderItem> BuildOrderItems(List<WebHookOrderItemModel> orderItemModels, List<Product> products)
-        {
-            var responseModel = new List<OrderItem>();
-
-            foreach (var itemModel in orderItemModels)
-            {
-                var orderItem = new OrderItem();
-                var product = products.FirstOrDefault(p => p.Sku == itemModel.Sku);
-
-                if (product is null)
-                {
-                    throw new WebHookCreateOrderException(WebHookError.CreateOrder.ProductMap, HttpStatusCode.InternalServerError);
-                }
-
-                orderItem.ProductId = product.Id;
-                orderItem.Sku = itemModel.Sku;
-                orderItem.Quantity = itemModel.Quantity;
-
-                responseModel.Add(orderItem);
-            }
-
-            return responseModel;
         }
         #endregion
     }
