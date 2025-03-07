@@ -18,6 +18,7 @@ using Polly;
 using Polly.Retry;
 using Serilog;
 using System.Net;
+using System.Security.Cryptography.X509Certificates;
 
 namespace Grand.Web.API.Controllers
 {
@@ -31,7 +32,6 @@ namespace Grand.Web.API.Controllers
         private readonly IProductService _productService;
         private readonly IOrderService _orderService;
         private readonly IStoreService _storeService;
-        private Store _store;
         #endregion
 
         #region Constructors
@@ -78,9 +78,9 @@ namespace Grand.Web.API.Controllers
                 }
 
                 //Store Check
-                _store = await GetStoreByName(order.StoreName);
+                var store = await _storeService.GetStoreByName(order.StoreName); 
 
-                if (_store is null)
+                if (store is null)
                 {
                     return BadRequest(WebHookError.CreateOrder.StoreNotFound);
                 }
@@ -98,7 +98,7 @@ namespace Grand.Web.API.Controllers
 
                 var products = validateOrderItems.Products;
 
-                Order createdOrder = await BuildOrder(order, customerInfo.Customer, products);
+                Order createdOrder = await BuildOrder(order, customerInfo.Customer, products, store.Id);
 
                 return Ok(createdOrder.Id);
             }
@@ -116,11 +116,11 @@ namespace Grand.Web.API.Controllers
             }
         }
 
-        private async Task<Order> BuildOrder(WebHookOrderModel order, Customer customer, List<Product> products)
+        private async Task<Order> BuildOrder(WebHookOrderModel order, Customer customer, List<Product> products, string storeId)
         {
             var orderEntity = new Order() {
                 CustomerId = customer.Id,
-                StoreId = _store.Id,
+                StoreId = storeId,
                 IdempotancyKey = order.IdempotencyKey,
                 CustomerEmail = customer.Email,
                 PaymentMethodSystemName = order.PaymentMethod,
@@ -207,11 +207,6 @@ namespace Grand.Web.API.Controllers
             }
 
             return responseModel;
-        }
-
-        private Task<Store> GetStoreByName(string storeName)
-        {
-            return _storeService.GetStoreByName(storeName);
         }
         #endregion
     }
