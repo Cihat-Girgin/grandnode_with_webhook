@@ -57,10 +57,7 @@ namespace Grand.Web.API.Controllers
         [CreateOrderAuthorize]
         public async Task<IActionResult> CreateOrder(WebHookOrderModel order)
         {
-            return await _retryPolicy.ExecuteAsync(async () =>
-            {
-                return await CreateOrderProcess(order);
-            });
+            return await _retryPolicy.ExecuteAsync(() => CreateOrderProcess(order));
         }
         #endregion
 
@@ -68,37 +65,39 @@ namespace Grand.Web.API.Controllers
         [NonAction]
         private async Task<IActionResult> CreateOrderProcess(WebHookOrderModel order)
         {
-            //Idempotency Check
-            var orderProcessed = await _orderService.GetOrderByIdempotencyKey(order.IdempotencyKey);
-
-            if (orderProcessed is not null)
-            {
-                return Ok(orderProcessed.Id);
-            }
-
-            //Store Check
-            _store = await GetStoreByName(order.StoreName);
-
-            if (_store is null)
-            {
-                return BadRequest(WebHookError.CreateOrder.StoreNotFound);
-            }
-
-            //Order Items SKU Check
-            var validateOrderItems = await ValidateOrderItems(order);
-
-            if (validateOrderItems.IsValid is false)
-            {
-                return BadRequest(WebHookError.CreateOrder.ProductMap);
-            }
-
-            //Set Customer
-            var customerInfo = await SetCustomer(order);
-
-            var products = validateOrderItems.Products;
+            var customerInfo = new CustomerInfo();
 
             try
             {
+                //Idempotency Check
+                var orderProcessed = await _orderService.GetOrderByIdempotencyKey(order.IdempotencyKey);
+
+                if (orderProcessed is not null)
+                {
+                    return Ok(orderProcessed.Id);
+                }
+
+                //Store Check
+                _store = await GetStoreByName(order.StoreName);
+
+                if (_store is null)
+                {
+                    return BadRequest(WebHookError.CreateOrder.StoreNotFound);
+                }
+
+                //Order Items SKU Check
+                var validateOrderItems = await ValidateOrderItems(order);
+
+                if (validateOrderItems.IsValid is false)
+                {
+                    return BadRequest(WebHookError.CreateOrder.ProductMap);
+                }
+
+                //Set Customer
+                customerInfo = await SetCustomer(order);
+
+                var products = validateOrderItems.Products;
+
                 Order createdOrder = await BuildOrder(order, customerInfo.Customer, products);
 
                 return Ok(createdOrder.Id);
@@ -147,15 +146,15 @@ namespace Grand.Web.API.Controllers
         private async Task<(bool IsValid, List<Product> Products)> ValidateOrderItems(WebHookOrderModel order)
         {
             var skuList = order.OrderItems.Select(oi => oi.Sku).ToArray();
-            
+
             var products = await _productService.GetProductsBySkuList(skuList);
 
             var isValid = skuList.Length == products.Count;
 
             return (isValid, products);
         }
-        
-        private async Task<(bool IsNewCustomer, Customer Customer)> SetCustomer(WebHookOrderModel order)
+
+        private async Task<CustomerInfo> SetCustomer(WebHookOrderModel order)
         {
             var customer = await _customerService.GetCustomerByEmail(order.Customer.Email);
             bool isNewCustomer = false;
@@ -183,9 +182,9 @@ namespace Grand.Web.API.Controllers
                 customer = await _customerService.InsertWebHookCustomer(newCustomer);
             }
 
-            return (isNewCustomer, customer);
+            return new CustomerInfo() { IsNewCustomer = isNewCustomer, Customer = customer };
         }
-        
+
         private ICollection<OrderItem> BuildOrderItems(List<WebHookOrderItemModel> orderItemModels, List<Product> products)
         {
             var responseModel = new List<OrderItem>();
@@ -209,7 +208,7 @@ namespace Grand.Web.API.Controllers
 
             return responseModel;
         }
-        
+
         private Task<Store> GetStoreByName(string storeName)
         {
             return _storeService.GetStoreByName(storeName);
