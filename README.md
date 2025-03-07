@@ -4,9 +4,9 @@ GrandNode için sistem haricinde dışardan gelen siparişleri işleyen end-poin
 
 ## Installation
 
-1. **Mongo DB**'yi ayağa kaldırın.
-2. Ardından **'testdb'** isminde bir veritabanı oluşturun.
-3. Uygulamayı ayağa kaldırın ve **GrandNode** kurulumunu yapın.
+1. **Mongo DB**'yi Dockerda veya lokalinizde ayağa kaldırın.
+2. Ardından GrandNode sample dataları için örnek bir veritabanı oluşturun.
+3. Uygulamayı ayağa kaldırın ve oluşturduğunuz veritabanı bilgileriyle **GrandNode** kurulumunu yapın.
 
 ## Api Workflow
 
