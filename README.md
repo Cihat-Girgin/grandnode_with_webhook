@@ -65,7 +65,7 @@ End-point **order** oluşturmadan önce eğer müşteri sistemde kayıtlı deği
 
 ## Rate Limiting
 
-Örnek olması açısından end-point dakikada 100 isteği karşılayabilecek şekilde yapılandırıldı. Eğer 100 isteği aşan bir istek yapılırsa, sistem 429 hata kodu döndürecektir.
+Örnek olması açısından end-point saniyede 100 isteği karşılayabilecek şekilde yapılandırıldı. Eğer 100 isteği aşan bir istek yapılırsa, sistem 429 hata kodu döndürecektir.
 
 
 
