@@ -1,6 +1,11 @@
 # Web Hook API
 
-GrandNode için akış haricinde dışardan gelen siparişleri işleyen end-point.
+GrandNode için dış sistemlerden gelen siparişleri işleyen end-point.
+
+- Dış sistemlerden gelen sipariş verilerini alır.
+- Siparişin geçerli olup olmadığını kontrol eder (örneğin, ürünlerin mevcudiyeti, müşteri bilgileri, vb.).
+- Siparişi GrandNode veritabanına işler ve kaydeder.
+- Hatalı siparişlerde uygun hata mesajları döner.
 
 ## Installation
 
