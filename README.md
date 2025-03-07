@@ -62,3 +62,10 @@ End-point, gelen istekte benzersiz ve ilgili requesti temsil eden bir **Idempote
 End-point **order** oluşturmadan önce eğer müşteri sistemde kayıtlı değilse yeni müşteri oluşturur.
 
 - İstisna olarak, yeni müşteri kaydından sonra **order** oluşturma aşamasında bir hata alınırsa, oluşturulan müşteri veritabanından silinir.
+
+## Rate Limiting
+
+Örnek olması açısından end-point dakikada 100 isteği karşılayabilecek şekilde yapılandırıldı. Eğer 100 isteği aşan bir istek yapılırsa, sistem 429 hata kodu döndürecektir.
+
+
+
